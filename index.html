@@ -389,6 +389,44 @@
       outline-offset: 4px;
     }
 
+    .hint-generator {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      width: min(340px, 100%);
+      margin-top: 20px;
+    }
+
+    .hint-button {
+      padding: 9px 15px;
+      border: 1px solid rgb(232 201 139 / 65%);
+      color: var(--gold);
+      background: rgb(28 23 26 / 82%);
+      box-shadow: 3px 3px 0 rgb(0 0 0 / 40%);
+      cursor: pointer;
+      font: 700 0.72rem "Segoe UI", sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: background 140ms steps(2), transform 140ms steps(2);
+    }
+
+    .hint-button:hover,
+    .hint-button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+      background: #302638;
+      transform: translate(-2px, -2px);
+    }
+
+    .hint-button:active { transform: translate(2px, 2px); }
+
+    .hint-text {
+      min-height: 42px;
+      margin: 0;
+      color: #e3d9ca;
+      font: 0.86rem/1.5 "Segoe UI", sans-serif;
+    }
+
     @media (max-width: 900px) {
       main {
         min-height: 100vh;
@@ -441,7 +479,7 @@
 <body>
   <main>
     <aside class="meme-rail" aria-label="Пиксельные мемы про гадание">
-      <button class="pixel-meme" type="button" aria-label="Оживить мем про повторное гадание">
+      <button class="pixel-meme" type="button" aria-label="Оживить мем про свидание с Даней">
         <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный призрак смотрит на карты">
           <rect x="5" y="1" width="6" height="1" fill="#f4ecd8"/>
           <rect x="3" y="2" width="10" height="1" fill="#f4ecd8"/>
@@ -455,9 +493,9 @@
           <rect x="7" y="8" width="2" height="1" fill="#ed7770"/>
           <rect x="5" y="3" width="1" height="1" fill="#fff"/>
         </svg>
-        <span class="meme-caption">Я: только один расклад<br>Также я: ещё раз</span>
+        <span class="meme-caption">Встречаться с Даней?<br>Пики, бля, крести…<br>И что же это? Хмм</span>
       </button>
-      <button class="pixel-meme" type="button" aria-label="Оживить мем про повторный расклад">
+      <button class="pixel-meme" type="button" aria-label="Оживить ещё один мем про Даню и карты">
         <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный кот гадает на картах">
           <rect x="3" y="1" width="2" height="3" fill="#e4aa59"/>
           <rect x="11" y="1" width="2" height="3" fill="#e4aa59"/>
@@ -473,7 +511,7 @@
           <rect x="11" y="10" width="4" height="1" fill="#eee3d2"/>
           <rect x="12" y="9" width="2" height="1" fill="#eee3d2"/>
         </svg>
-        <span class="meme-caption">Пики: нет<br>Я: а если перетянуть?</span>
+        <span class="meme-caption">Спросила карты про Даню<br>Они: ♠ ♣<br>Я: хмм…</span>
       </button>
     </aside>
 
@@ -497,6 +535,10 @@
       </section>
 
       <button class="draw-button" id="draw-button" type="button">Вытянуть карту</button>
+      <section class="hint-generator" aria-label="Идеи для гадания">
+        <button class="hint-button" id="hint-button" type="button">Подсказать, о чём погадать</button>
+        <p class="hint-text" id="hint-text" aria-live="polite">Не знаешь, о чём спросить карты? Нажми для идеи.</p>
+      </section>
     </section>
 
     <aside class="oracle-panel" aria-label="Шар предсказаний">
@@ -557,12 +599,34 @@
     const oracleBall = document.querySelector("#oracle-ball");
     const oracleAnswer = document.querySelector("#oracle-answer");
     const oracleHint = document.querySelector("#oracle-hint");
+    const hintButton = document.querySelector("#hint-button");
+    const hintText = document.querySelector("#hint-text");
     const memeButtons = document.querySelectorAll(".pixel-meme");
     const memeCaptions = [
-      "Карты сказали «нет»…\nСпросим ещё раз",
-      "Один расклад — и спать\nЕщё один не считается",
-      "Погадаю быстро\n*прошёл уже час*",
-      "Это знак?\nЭто точно знак"
+      [
+        "Встречаться с Даней?\nПики, бля, крести…\nИ что же это? Хмм",
+        "Даня написал «привет»\nКарты: ♠ ♣\nЯ: так, это знак?",
+        "Спросила карты про Даню\nВыпали пики и крести\nХмм, интересно…"
+      ],
+      [
+        "Спросила карты про Даню\nОни: ♠ ♣\nЯ: хмм…",
+        "Даня: пойдём гулять?\nЯ уже тяну карту\nСекундочку!",
+        "Свидание с Даней?\nСначала расклад\nПотом отвечу"
+      ]
+    ];
+    const fortuneQuestions = [
+      "Что хорошего может случиться со мной на этой неделе?",
+      "На что мне обратить внимание сегодня?",
+      "Какой маленький шаг приблизит меня к моей цели?",
+      "Что поможет мне принять решение?",
+      "Какая неожиданность может ждать меня впереди?",
+      "Что поможет мне найти общий язык с важным для меня человеком?",
+      "Как лучше провести ближайшие выходные?",
+      "Какой талант мне стоит попробовать развить?",
+      "Что может поднять мне настроение в ближайшее время?",
+      "От чего мне пора отвлечься или отдохнуть?",
+      "Какую возможность мне стоит заметить?",
+      "Что поможет мне увереннее двигаться дальше?"
     ];
     const predictions = [
       "Звёзды говорят: да",
@@ -580,12 +644,14 @@
     ];
 
     memeButtons.forEach((memeButton) => {
+      const memeIndex = Array.from(memeButtons).indexOf(memeButton);
       let captionIndex = 0;
       const caption = memeButton.querySelector(".meme-caption");
 
       memeButton.addEventListener("click", () => {
-        captionIndex = (captionIndex + 1) % memeCaptions.length;
-        caption.textContent = memeCaptions[captionIndex];
+        const captions = memeCaptions[memeIndex];
+        captionIndex = (captionIndex + 1) % captions.length;
+        caption.textContent = captions[captionIndex];
         memeButton.classList.remove("is-playing");
         void memeButton.offsetWidth;
         memeButton.classList.add("is-playing");
@@ -593,6 +659,11 @@
 
       memeButton.addEventListener("animationend", () => {
         memeButton.classList.remove("is-playing");
+      });
+
+      hintButton.addEventListener("click", () => {
+        const questionIndex = Math.floor(Math.random() * fortuneQuestions.length);
+        hintText.textContent = fortuneQuestions[questionIndex];
       });
     });
 
