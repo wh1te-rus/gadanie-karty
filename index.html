@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17151b">
+  <meta name="description" content="Бесплатное гадание на игральных картах: черви, бубны, трефы и пики.">
+  <title>Гадание на картах</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --cream: #f8f1e5;
+      --muted: #c2b9aa;
+      --gold: #e8c98b;
+      --red: #f16d67;
+      --green: #4c3728;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--cream);
+      background:
+        linear-gradient(180deg, rgb(11 10 15 / 72%), rgb(18 13 13 / 58%) 48%, rgb(9 8 12 / 78%)),
+        url("stol.jfif") center / cover fixed,
+        #17151b;
+    }
+
+    body::before {
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgb(205 147 81 / 13%), transparent 60%);
+      content: "";
+      pointer-events: none;
+    }
+
+    main {
+      display: grid;
+      width: min(1240px, 100%);
+      min-height: 100vh;
+      grid-template-columns: minmax(155px, 1fr) minmax(300px, 390px) minmax(180px, 1fr);
+      align-items: center;
+      gap: clamp(16px, 3vw, 42px);
+      margin: 0 auto;
+      padding: 32px clamp(18px, 4vw, 52px);
+    }
+
+    .reading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .meme-rail {
+      display: grid;
+      justify-items: center;
+      gap: 26px;
+    }
+
+    .pixel-meme {
+      width: min(180px, 100%);
+      padding: 12px 11px 13px;
+      border: 2px solid #d2b77e;
+      background: #211c24;
+      box-shadow: 5px 5px 0 rgb(0 0 0 / 46%), inset 0 0 0 3px rgb(232 201 139 / 9%);
+      text-align: center;
+    }
+
+    .pixel-meme:nth-child(2) {
+      border-color: #9eadd0;
+      transform: rotate(2deg);
+    }
+
+    .pixel-meme:first-child { transform: rotate(-2deg); }
+
+    .pixel-art {
+      display: block;
+      width: 104px;
+      height: 84px;
+      margin: 0 auto 8px;
+      image-rendering: pixelated;
+      shape-rendering: crispEdges;
+    }
+
+    .meme-caption {
+      margin: 0;
+      color: #f2e7d3;
+      font: 700 0.68rem/1.45 "Segoe UI", sans-serif;
+      letter-spacing: 0.035em;
+      text-transform: uppercase;
+    }
+
+    .oracle-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 11px;
+      text-align: center;
+    }
+
+    .oracle-title {
+      margin: 0;
+      color: var(--gold);
+      font-size: 1.18rem;
+      font-weight: 400;
+    }
+
+    .oracle-hint {
+      max-width: 190px;
+      min-height: 34px;
+      margin: 0;
+      color: var(--muted);
+      font: 0.78rem/1.45 "Segoe UI", sans-serif;
+    }
+
+    .oracle-ball {
+      position: relative;
+      display: grid;
+      width: 176px;
+      aspect-ratio: 1;
+      place-items: center;
+      padding: 0;
+      overflow: hidden;
+      border: 2px solid #55525f;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 23%, #50505b 0, #292832 22%, #101016 68%, #050507 100%);
+      box-shadow:
+        inset -12px -14px 22px rgb(0 0 0 / 70%),
+        inset 8px 8px 20px rgb(255 255 255 / 10%),
+        0 14px 26px rgb(0 0 0 / 55%),
+        0 0 25px rgb(89 136 212 / 14%);
+      cursor: pointer;
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .oracle-ball:hover {
+      box-shadow:
+        inset -12px -14px 22px rgb(0 0 0 / 70%),
+        inset 8px 8px 20px rgb(255 255 255 / 10%),
+        0 17px 30px rgb(0 0 0 / 58%),
+        0 0 34px rgb(89 136 212 / 29%);
+      transform: translateY(-4px) rotate(-3deg);
+    }
+
+    .oracle-ball:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 5px;
+    }
+
+    .oracle-window {
+      display: grid;
+      width: 74px;
+      aspect-ratio: 1;
+      place-items: center;
+      padding: 8px;
+      clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%);
+      color: #eef5ff;
+      background: radial-gradient(circle at 35% 26%, #2864a4, #10264f 75%);
+      box-shadow: inset 0 0 16px rgb(89 168 255 / 48%);
+      font: 700 0.64rem/1.15 "Segoe UI", sans-serif;
+      text-align: center;
+      text-shadow: 0 1px 3px #071226;
+    }
+
+    .oracle-ball.is-shaking {
+      animation: shake 520ms ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: rotate(0); }
+      20% { transform: translateX(-7px) rotate(-8deg); }
+      40% { transform: translateX(7px) rotate(8deg); }
+      60% { transform: translateX(-5px) rotate(-5deg); }
+      80% { transform: translateX(5px) rotate(5deg); }
+    }
+
+    .table-glow {
+      display: grid;
+      width: min(390px, 92vw);
+      min-height: 345px;
+      place-items: center;
+      border: 1px solid rgb(232 201 139 / 19%);
+      border-radius: 190px;
+      background:
+        radial-gradient(ellipse, rgb(84 51 32 / 42%), rgb(23 19 22 / 30%) 65%, transparent 72%);
+      box-shadow: 0 0 80px rgb(0 0 0 / 28%), inset 0 0 50px rgb(0 0 0 / 20%);
+    }
+
+    .card {
+      position: relative;
+      width: min(220px, 56vw);
+      aspect-ratio: 234 / 298;
+      overflow: hidden;
+      border: 2px solid #e8d9be;
+      border-radius: 15px;
+      background:
+        repeating-linear-gradient(45deg, #322640 0 5px, #382b49 5px 10px);
+      box-shadow:
+        0 15px 35px rgb(0 0 0 / 55%),
+        0 0 0 5px rgb(232 201 139 / 11%),
+        0 0 32px rgb(232 201 139 / 12%);
+      transform: rotate(-2deg);
+      transition: transform 350ms ease, box-shadow 350ms ease;
+    }
+
+    .card::before,
+    .card::after {
+      position: absolute;
+      z-index: 1;
+      width: 28px;
+      height: 28px;
+      border-color: rgb(232 201 139 / 72%);
+      border-style: solid;
+      content: "";
+      pointer-events: none;
+    }
+
+    .card::before {
+      top: 9px;
+      left: 9px;
+      border-width: 1px 0 0 1px;
+    }
+
+    .card::after {
+      right: 9px;
+      bottom: 9px;
+      border-width: 0 1px 1px 0;
+    }
+
+    .card.is-drawn {
+      box-shadow:
+        0 18px 40px rgb(0 0 0 / 60%),
+        0 0 0 5px rgb(232 201 139 / 13%),
+        0 0 40px color-mix(in srgb, var(--card-color, var(--gold)) 32%, transparent);
+      transform: rotate(0) translateY(-3px);
+    }
+
+    .card-back {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      place-items: center;
+      padding: 26px;
+    }
+
+    .card-back-inner {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      place-content: center;
+      gap: 12px;
+      border: 1px solid rgb(232 201 139 / 55%);
+      border-radius: 120px 120px 9px 9px;
+      color: var(--gold);
+      background:
+        radial-gradient(ellipse at center, rgb(232 201 139 / 14%), transparent 65%),
+        repeating-linear-gradient(135deg, transparent 0 8px, rgb(232 201 139 / 7%) 8px 9px);
+    }
+
+    .back-star {
+      font-size: 3.2rem;
+      text-shadow: 0 0 22px rgb(232 201 139 / 50%);
+    }
+
+    .back-caption {
+      font: 600 0.65rem "Segoe UI", sans-serif;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .card-face {
+      display: none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card.is-drawn .card-back { display: none; }
+    .card.is-drawn .card-face { display: block; animation: reveal 420ms ease both; }
+
+    @keyframes reveal {
+      from { opacity: 0.3; transform: scale(0.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .result {
+      width: min(500px, 100%);
+      min-height: 132px;
+      padding: 23px 10px 0;
+    }
+
+    .result h2 {
+      margin: 0 0 9px;
+      color: var(--gold);
+      font-size: 1.75rem;
+      font-weight: 400;
+    }
+
+    .answer {
+      display: inline-block;
+      margin-bottom: 9px;
+      color: var(--red);
+      font: 700 0.78rem "Segoe UI", sans-serif;
+      letter-spacing: 0.2em;
+    }
+
+    .answer[data-answer="да"],
+    .answer[data-answer="скорее да"] { color: #a9d59a; }
+
+    .result p {
+      margin: 0;
+      color: #e3d9ca;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .draw-button {
+      min-height: 51px;
+      margin-top: 12px;
+      padding: 0 28px;
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      color: #211a17;
+      background: var(--gold);
+      box-shadow: 0 5px 20px rgb(0 0 0 / 25%);
+      cursor: pointer;
+      font: 600 0.9rem "Segoe UI", sans-serif;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .draw-button:hover {
+      color: var(--gold);
+      background: rgb(20 16 17 / 72%);
+      transform: translateY(-2px);
+    }
+
+    .draw-button:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 4px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        min-height: 100vh;
+        grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr);
+        grid-template-areas:
+          "reading reading"
+          "memes oracle";
+        align-content: center;
+        gap: 16px 22px;
+      }
+
+      .reading { grid-area: reading; }
+      .meme-rail {
+        grid-area: memes;
+        grid-template-columns: repeat(2, minmax(0, 150px));
+        gap: 12px;
+      }
+      .pixel-meme { width: 100%; }
+      .pixel-art { width: 82px; height: 68px; }
+      .oracle-panel { grid-area: oracle; }
+      .oracle-ball { width: min(160px, 36vw); }
+    }
+
+    @media (max-width: 520px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-areas: "reading" "oracle" "memes";
+        gap: 24px;
+        padding: 24px 16px 32px;
+      }
+
+      .table-glow { min-height: 310px; }
+      .card { width: min(195px, 56vw); }
+      .meme-rail { grid-template-columns: repeat(2, minmax(0, 142px)); }
+      .pixel-meme { padding: 9px 7px 10px; }
+      .meme-caption { font-size: 0.61rem; }
+      .oracle-ball { width: 138px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <aside class="meme-rail" aria-label="Пиксельные мемы про гадание">
+      <div class="pixel-meme">
+        <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный призрак смотрит на карты">
+          <rect x="5" y="1" width="6" height="1" fill="#f4ecd8"/>
+          <rect x="3" y="2" width="10" height="1" fill="#f4ecd8"/>
+          <rect x="2" y="3" width="12" height="6" fill="#f4ecd8"/>
+          <rect x="2" y="9" width="2" height="2" fill="#f4ecd8"/>
+          <rect x="6" y="9" width="2" height="2" fill="#f4ecd8"/>
+          <rect x="10" y="9" width="2" height="2" fill="#f4ecd8"/>
+          <rect x="13" y="9" width="1" height="1" fill="#f4ecd8"/>
+          <rect x="4" y="5" width="2" height="2" fill="#25202a"/>
+          <rect x="10" y="5" width="2" height="2" fill="#25202a"/>
+          <rect x="7" y="8" width="2" height="1" fill="#ed7770"/>
+          <rect x="5" y="3" width="1" height="1" fill="#fff"/>
+        </svg>
+        <p class="meme-caption">Я: только один расклад<br>Также я: ещё раз</p>
+      </div>
+      <div class="pixel-meme">
+        <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный кот гадает на картах">
+          <rect x="3" y="1" width="2" height="3" fill="#e4aa59"/>
+          <rect x="11" y="1" width="2" height="3" fill="#e4aa59"/>
+          <rect x="4" y="2" width="8" height="1" fill="#e4aa59"/>
+          <rect x="3" y="4" width="10" height="5" fill="#e4aa59"/>
+          <rect x="4" y="9" width="8" height="1" fill="#e4aa59"/>
+          <rect x="5" y="5" width="2" height="2" fill="#29242a"/>
+          <rect x="10" y="5" width="2" height="2" fill="#29242a"/>
+          <rect x="8" y="7" width="1" height="1" fill="#bd5c59"/>
+          <rect x="6" y="8" width="4" height="1" fill="#f4ecd8"/>
+          <rect x="1" y="10" width="4" height="1" fill="#eee3d2"/>
+          <rect x="2" y="9" width="2" height="1" fill="#eee3d2"/>
+          <rect x="11" y="10" width="4" height="1" fill="#eee3d2"/>
+          <rect x="12" y="9" width="2" height="1" fill="#eee3d2"/>
+        </svg>
+        <p class="meme-caption">Пики: нет<br>Я: а если перетянуть?</p>
+      </div>
+    </aside>
+
+    <section class="reading" aria-label="Гадание на картах">
+      <div class="table-glow">
+        <section class="card" id="card" aria-label="Карта ещё не открыта">
+          <div class="card-back" aria-hidden="true">
+            <div class="card-back-inner">
+              <span class="back-star">✧</span>
+              <span class="back-caption">Твой ответ</span>
+            </div>
+          </div>
+          <img class="card-face" id="card-image" alt="">
+        </section>
+      </div>
+
+      <section class="result" id="result" aria-live="polite" aria-atomic="true">
+        <h2 id="result-title">Карта ждёт тебя</h2>
+        <span class="answer" id="result-answer" hidden></span>
+        <p id="result-text">У каждой масти свой ответ. Открой карту и узнай свой.</p>
+      </section>
+
+      <button class="draw-button" id="draw-button" type="button">Вытянуть карту</button>
+    </section>
+
+    <aside class="oracle-panel" aria-label="Шар предсказаний">
+      <h2 class="oracle-title">Шар предсказаний</h2>
+      <p class="oracle-hint" id="oracle-hint" aria-live="polite">Задай вопрос и нажми на шар</p>
+      <button class="oracle-ball" id="oracle-ball" type="button" aria-label="Встряхнуть шар предсказаний">
+        <span class="oracle-window" id="oracle-answer" aria-hidden="true">8</span>
+      </button>
+    </aside>
+  </main>
+
+  <script>
+    const cards = [
+      {
+        suit: "Черви",
+        rank: "Туз",
+        title: "Туз червей",
+        image: "cherv.jpg",
+        answer: "Да",
+        message: "Радость, согласие и добрый исход. Сердечные дела складываются благоприятно.",
+        color: "#ee6862"
+      },
+      {
+        suit: "Бубны",
+        rank: "Дама",
+        title: "Дама бубен",
+        image: "bubn.jpg",
+        answer: "Да",
+        message: "Хороший знак для задуманного: ответ скорее будет положительным, а новости — приятными.",
+        color: "#ee6862"
+      },
+      {
+        suit: "Трефы",
+        rank: "Валет",
+        title: "Валет треф",
+        image: "puk.jpg",
+        answer: "Скорее да",
+        message: "Результат придёт через усилия. Возможны хлопоты, но настойчивость поможет добиться своего.",
+        color: "#d8d1c5"
+      },
+      {
+        suit: "Пики",
+        rank: "Король",
+        title: "Король пик",
+        image: "tret.jpg",
+        answer: "Нет",
+        message: "Карта предупреждает о препятствиях, отказе или задержке. Возможно, сейчас лучше выбрать другой путь.",
+        color: "#d8d1c5"
+      }
+    ];
+
+    const cardElement = document.querySelector("#card");
+    const cardImage = document.querySelector("#card-image");
+    const titleElement = document.querySelector("#result-title");
+    const answerElement = document.querySelector("#result-answer");
+    const textElement = document.querySelector("#result-text");
+    const drawButton = document.querySelector("#draw-button");
+    const oracleBall = document.querySelector("#oracle-ball");
+    const oracleAnswer = document.querySelector("#oracle-answer");
+    const oracleHint = document.querySelector("#oracle-hint");
+    const predictions = [
+      "Звёзды говорят: да",
+      "Определённо да",
+      "Скорее всего",
+      "Знак хороший",
+      "Пока неясно",
+      "Спроси позже",
+      "Не рассчитывай",
+      "Ответ — нет"
+    ];
+
+    drawButton.addEventListener("click", () => {
+      const drawnCard = cards[Math.floor(Math.random() * cards.length)];
+
+      cardElement.style.setProperty("--card-color", drawnCard.color);
+      cardElement.classList.add("is-drawn");
+      cardElement.setAttribute("aria-label", `Выпала карта: ${drawnCard.rank} ${drawnCard.suit}`);
+      cardImage.src = drawnCard.image;
+      cardImage.alt = `${drawnCard.rank} ${drawnCard.suit}`;
+      titleElement.textContent = drawnCard.title;
+      answerElement.textContent = drawnCard.answer.toUpperCase();
+      answerElement.dataset.answer = drawnCard.answer.toLowerCase();
+      answerElement.hidden = false;
+      textElement.textContent = drawnCard.message;
+    });
+
+    oracleBall.addEventListener("click", () => {
+      const prediction = predictions[Math.floor(Math.random() * predictions.length)];
+
+      oracleBall.classList.remove("is-shaking");
+      void oracleBall.offsetWidth;
+      oracleBall.classList.add("is-shaking");
+      oracleAnswer.textContent = prediction;
+      oracleHint.textContent = prediction;
+      oracleBall.setAttribute("aria-label", `Шар предсказывает: ${prediction}`);
+    });
+  </script>
+</body>
+</html>
