@@ -65,12 +65,33 @@
     }
 
     .pixel-meme {
+      position: relative;
+      display: grid;
+      justify-items: center;
       width: min(180px, 100%);
       padding: 12px 11px 13px;
       border: 2px solid #d2b77e;
+      border-radius: 0;
+      color: inherit;
       background: #211c24;
       box-shadow: 5px 5px 0 rgb(0 0 0 / 46%), inset 0 0 0 3px rgb(232 201 139 / 9%);
+      cursor: pointer;
+      font: inherit;
       text-align: center;
+      transition: transform 120ms steps(3), box-shadow 120ms steps(3), background 120ms steps(3);
+    }
+
+    .pixel-meme:hover,
+    .pixel-meme:focus-visible {
+      z-index: 1;
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+      background: #302638;
+      box-shadow: 7px 7px 0 rgb(0 0 0 / 50%), 0 0 20px rgb(232 201 139 / 16%);
+    }
+
+    .pixel-meme:active {
+      box-shadow: 2px 2px 0 rgb(0 0 0 / 50%);
     }
 
     .pixel-meme:nth-child(2) {
@@ -89,12 +110,33 @@
       shape-rendering: crispEdges;
     }
 
+    .pixel-meme.is-playing .pixel-art {
+      animation: pixel-pop 420ms steps(4);
+    }
+
+    .pixel-meme.is-playing {
+      animation: pixel-flash 420ms steps(2);
+    }
+
+    @keyframes pixel-pop {
+      0%, 100% { transform: translateY(0) scale(1); }
+      25% { transform: translateY(-7px) scale(1.08); }
+      50% { transform: translateY(2px) scale(0.94); }
+      75% { transform: translateY(-3px) scale(1.04); }
+    }
+
+    @keyframes pixel-flash {
+      0%, 100% { filter: none; }
+      50% { filter: brightness(1.8) saturate(1.4); }
+    }
+
     .meme-caption {
       margin: 0;
       color: #f2e7d3;
       font: 700 0.68rem/1.45 "Segoe UI", sans-serif;
       letter-spacing: 0.035em;
       text-transform: uppercase;
+      white-space: pre-line;
     }
 
     .oracle-panel {
@@ -399,7 +441,7 @@
 <body>
   <main>
     <aside class="meme-rail" aria-label="Пиксельные мемы про гадание">
-      <div class="pixel-meme">
+      <button class="pixel-meme" type="button" aria-label="Оживить мем про повторное гадание">
         <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный призрак смотрит на карты">
           <rect x="5" y="1" width="6" height="1" fill="#f4ecd8"/>
           <rect x="3" y="2" width="10" height="1" fill="#f4ecd8"/>
@@ -413,9 +455,9 @@
           <rect x="7" y="8" width="2" height="1" fill="#ed7770"/>
           <rect x="5" y="3" width="1" height="1" fill="#fff"/>
         </svg>
-        <p class="meme-caption">Я: только один расклад<br>Также я: ещё раз</p>
-      </div>
-      <div class="pixel-meme">
+        <span class="meme-caption">Я: только один расклад<br>Также я: ещё раз</span>
+      </button>
+      <button class="pixel-meme" type="button" aria-label="Оживить мем про повторный расклад">
         <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный кот гадает на картах">
           <rect x="3" y="1" width="2" height="3" fill="#e4aa59"/>
           <rect x="11" y="1" width="2" height="3" fill="#e4aa59"/>
@@ -431,8 +473,8 @@
           <rect x="11" y="10" width="4" height="1" fill="#eee3d2"/>
           <rect x="12" y="9" width="2" height="1" fill="#eee3d2"/>
         </svg>
-        <p class="meme-caption">Пики: нет<br>Я: а если перетянуть?</p>
-      </div>
+        <span class="meme-caption">Пики: нет<br>Я: а если перетянуть?</span>
+      </button>
     </aside>
 
     <section class="reading" aria-label="Гадание на картах">
@@ -515,6 +557,13 @@
     const oracleBall = document.querySelector("#oracle-ball");
     const oracleAnswer = document.querySelector("#oracle-answer");
     const oracleHint = document.querySelector("#oracle-hint");
+    const memeButtons = document.querySelectorAll(".pixel-meme");
+    const memeCaptions = [
+      "Карты сказали «нет»…\nСпросим ещё раз",
+      "Один расклад — и спать\nЕщё один не считается",
+      "Погадаю быстро\n*прошёл уже час*",
+      "Это знак?\nЭто точно знак"
+    ];
     const predictions = [
       "Звёзды говорят: да",
       "Определённо да",
@@ -525,6 +574,27 @@
       "Не рассчитывай",
       "Ответ — нет"
     ];
+    const rarePredictions = [
+      "Карты ушли в AFK",
+      "Сегодня ты — главный мем"
+    ];
+
+    memeButtons.forEach((memeButton) => {
+      let captionIndex = 0;
+      const caption = memeButton.querySelector(".meme-caption");
+
+      memeButton.addEventListener("click", () => {
+        captionIndex = (captionIndex + 1) % memeCaptions.length;
+        caption.textContent = memeCaptions[captionIndex];
+        memeButton.classList.remove("is-playing");
+        void memeButton.offsetWidth;
+        memeButton.classList.add("is-playing");
+      });
+
+      memeButton.addEventListener("animationend", () => {
+        memeButton.classList.remove("is-playing");
+      });
+    });
 
     drawButton.addEventListener("click", () => {
       const drawnCard = cards[Math.floor(Math.random() * cards.length)];
@@ -542,7 +612,12 @@
     });
 
     oracleBall.addEventListener("click", () => {
-      const prediction = predictions[Math.floor(Math.random() * predictions.length)];
+      const roll = Math.random();
+      const prediction = roll < 0.025
+        ? rarePredictions[0]
+        : roll < 0.05
+          ? rarePredictions[1]
+          : predictions[Math.floor(Math.random() * predictions.length)];
 
       oracleBall.classList.remove("is-shaking");
       void oracleBall.offsetWidth;
