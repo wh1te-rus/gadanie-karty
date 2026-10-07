@@ -479,7 +479,7 @@
 <body>
   <main>
     <aside class="meme-rail" aria-label="Пиксельные мемы про гадание">
-      <button class="pixel-meme" type="button" aria-label="Оживить мем про свидание с Даней">
+      <button class="pixel-meme" type="button" aria-label="Оживить пиксельный мем про Милану">
         <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный призрак смотрит на карты">
           <rect x="5" y="1" width="6" height="1" fill="#f4ecd8"/>
           <rect x="3" y="2" width="10" height="1" fill="#f4ecd8"/>
@@ -493,9 +493,9 @@
           <rect x="7" y="8" width="2" height="1" fill="#ed7770"/>
           <rect x="5" y="3" width="1" height="1" fill="#fff"/>
         </svg>
-        <span class="meme-caption">Встречаться с Даней?<br>Пики, бля, крести…<br>И что же это? Хмм</span>
+        <span class="meme-caption">Встречаться с Миланой?<br>Карты: ♠ ♣<br>Я: хмм…</span>
       </button>
-      <button class="pixel-meme" type="button" aria-label="Оживить ещё один мем про Даню и карты">
+      <button class="pixel-meme" type="button" aria-label="Оживить ещё один пиксельный мем про Милану">
         <svg class="pixel-art" viewBox="0 0 16 13" role="img" aria-label="Пиксельный кот гадает на картах">
           <rect x="3" y="1" width="2" height="3" fill="#e4aa59"/>
           <rect x="11" y="1" width="2" height="3" fill="#e4aa59"/>
@@ -511,7 +511,7 @@
           <rect x="11" y="10" width="4" height="1" fill="#eee3d2"/>
           <rect x="12" y="9" width="2" height="1" fill="#eee3d2"/>
         </svg>
-        <span class="meme-caption">Спросила карты про Даню<br>Они: ♠ ♣<br>Я: хмм…</span>
+        <span class="meme-caption">Спросила карты про Милану<br>Выпали все масти<br>Карты тоже задумались</span>
       </button>
     </aside>
 
@@ -604,14 +604,14 @@
     const memeButtons = document.querySelectorAll(".pixel-meme");
     const memeCaptions = [
       [
-        "Встречаться с Даней?\nПики, бля, крести…\nИ что же это? Хмм",
-        "Даня написал «привет»\nКарты: ♠ ♣\nЯ: так, это знак?",
-        "Спросила карты про Даню\nВыпали пики и крести\nХмм, интересно…"
+        "Встречаться с Миланой?\nКарты: ♠ ♣\nЯ: хмм…",
+        "Милана спросила карты\nВыпали все масти\nКарты тоже задумались",
+        "Милана тянет карту\nИнтрига: 100%\nПики: погодите"
       ],
       [
-        "Спросила карты про Даню\nОни: ♠ ♣\nЯ: хмм…",
-        "Даня: пойдём гулять?\nЯ уже тяну карту\nСекундочку!",
-        "Свидание с Даней?\nСначала расклад\nПотом отвечу"
+        "Милана: один расклад\nКарты: держи ещё\nЯ: ладно!",
+        "Спросила карты про Милану\nОни: ✨\nЯ: знала!",
+        "Милана нажала «ещё раз»\nШар: я всё вижу"
       ]
     ];
     const fortuneQuestions = [
@@ -640,7 +640,8 @@
     ];
     const rarePredictions = [
       "Карты ушли в AFK",
-      "Сегодня ты — главный мем"
+      "Сегодня ты — главный мем",
+      "Милана — повелительница карт!"
     ];
 
     memeButtons.forEach((memeButton) => {
@@ -660,11 +661,11 @@
       memeButton.addEventListener("animationend", () => {
         memeButton.classList.remove("is-playing");
       });
+    });
 
-      hintButton.addEventListener("click", () => {
-        const questionIndex = Math.floor(Math.random() * fortuneQuestions.length);
-        hintText.textContent = fortuneQuestions[questionIndex];
-      });
+    hintButton.addEventListener("click", () => {
+      const questionIndex = Math.floor(Math.random() * fortuneQuestions.length);
+      hintText.textContent = fortuneQuestions[questionIndex];
     });
 
     drawButton.addEventListener("click", () => {
@@ -684,11 +685,9 @@
 
     oracleBall.addEventListener("click", () => {
       const roll = Math.random();
-      const prediction = roll < 0.025
-        ? rarePredictions[0]
-        : roll < 0.05
-          ? rarePredictions[1]
-          : predictions[Math.floor(Math.random() * predictions.length)];
+      const prediction = roll < 0.05
+        ? rarePredictions[Math.floor(roll / 0.05 * rarePredictions.length)]
+        : predictions[Math.floor(Math.random() * predictions.length)];
 
       oracleBall.classList.remove("is-shaking");
       void oracleBall.offsetWidth;
